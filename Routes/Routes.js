@@ -26,8 +26,9 @@ router.delete("/deleteProduct/:id", jwtAuthMiddleware, ProductController.deleteP
 const CartController = require("../Controller/CartController");
 router.post("/addToCart", jwtAuthMiddleware, CartController.addToCart);
 router.get("/getCart", jwtAuthMiddleware, CartController.getCart);
-// router.delete("/removeFromCart/:productId", jwtAuthMiddleware, CartController.removeFromCart);
+router.delete("/deletedProduct/:id", jwtAuthMiddleware, CartController.removeFromCart);
 // router.put("/updateCart/:productId", jwtAuthMiddleware, CartController.updateCart);
+ 
  
 
 module.exports = router;
