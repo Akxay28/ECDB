@@ -70,4 +70,50 @@ exports.getCart = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
- 
+
+
+exports.removeFromCart = async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const itemId = req.params.id;  
+  
+      const updatedCart = await CartUser.findOneAndUpdate(
+        { userId },
+        { $pull: { items: { _id: itemId } } }, // REMOVE the item from the items array
+        { new: true } // return the updated cart
+      )
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name price description image category');
+  
+      if (!updatedCart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+  
+      res.status(200).json({
+        message: "Item deleted from cart successfully",
+        cart: updatedCart
+      });
+
+    // This method wouldn't work if you're deleting an item inside items[]
+    // const id = req.params.id;
+    // const userDelete = await CartUser.findByIdAndDelete({ _id: id });
+    // // const userDelete = await CartUser.findByIdAndDelete(id);
+    // if (!userDelete) {
+    //   return res.status(404).json({ message: "Cart not found" });
+    // }
+    // res.status(200).json({ message: "Item deleted from cart successfully" });
+    } catch (error) {
+      console.error("Error deleting item from cart:", error);
+      res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+  };
+  
+//   Note for delete an cart product inside the item
+//   🚫 Don't use this if you're deleting an item inside items[]:
+
+// if you're deleting a specific cart item, not the entire cart, you should use $pull with findOneAndUpdate, not findOneAndDelete.
+
+// Summary:
+// Goal	Method to Use
+// Delete entire cart by _id - 	findByIdAndDelete(id) or findOneAndDelete({ _id: id })
+// Delete an item in items[]	findOneAndUpdate({ userId }, { $pull: { items: { _id: itemId } } })
